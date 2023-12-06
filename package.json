@@ -10,12 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "d3-scale": "^4.0.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hexgrid": "^2.0.1",
+    "styled-components": "^6.1.1",
     "tone": "^14.7.77"
   },
   "devDependencies": {
+    "@types/d3-scale": "^4.0.8",
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
     "@typescript-eslint/eslint-plugin": "^6.10.0",

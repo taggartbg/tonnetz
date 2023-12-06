@@ -21,11 +21,8 @@ const SCALE = [
 ]
 const BASE_SCALE_OFFSET = 4
 
-const playTone = ({ rowOffset, intervalOffset }: { rowOffset: number, intervalOffset: number}) => {
-  const synth = new Tone.Synth().toDestination();
-  // synth.triggerAttackRelease("C4", "8n");
-
-  const scale = rowOffset > -1
+const getTone = ({ rowOffset, intervalOffset }: { rowOffset: number, intervalOffset: number}) => {
+ const scale = rowOffset > -1
     ? SCALE.map((x, i) => SCALE[(i + rowOffset * ROW_SEMITONES) % 12])
     : SCALE.map((x, i) => SCALE[(i + (12 + rowOffset * ROW_SEMITONES)) % 12])
 
@@ -40,10 +37,13 @@ const playTone = ({ rowOffset, intervalOffset }: { rowOffset: number, intervalOf
     scaleOffset++;
   }
 
-  const playing = `${note}${scaleOffset + Math.floor((intervalOffset * INTERVAL_SEMITONES) / 12)}`
-  console.log("PLAYING: ", { playing, note, rowOffset, intervalOffset, scale, scaleOffset })
-
-  synth.triggerAttackRelease(playing, '8n')
+  return `${note}${scaleOffset + Math.floor((intervalOffset * INTERVAL_SEMITONES) / 12)}`
 }
 
-export { playTone }
+const playTone = (tone: string) => {
+  const synth = new Tone.Synth().toDestination();
+  synth.triggerAttackRelease(tone, '8n')
+  console.log("PLAYING:", tone)
+}
+
+export { getTone, playTone, SCALE, BASE_SCALE_OFFSET }

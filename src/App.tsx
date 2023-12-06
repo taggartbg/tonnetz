@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { HexGrid, Layout, Hexagon, GridGenerator } from 'react-hexgrid';
+import { HexGrid, Layout, GridGenerator } from 'react-hexgrid';
 import HexPad from './components/HexPad';
 import './App.css';
 
 class App extends Component {
   render() {
-    const hexagons = GridGenerator.hexagon(2);
+    const hexagons = GridGenerator.hexagon(3);
 
     return (
       <div className="App">
