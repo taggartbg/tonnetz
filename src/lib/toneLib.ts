@@ -24,11 +24,11 @@ const BASE_SCALE_OFFSET = 4
 const getTone = ({ rowOffset, intervalOffset }: { rowOffset: number, intervalOffset: number}) => {
  const scale = rowOffset > -1
     ? SCALE.map((x, i) => SCALE[(i + rowOffset * ROW_SEMITONES) % 12])
-    : SCALE.map((x, i) => SCALE[(i + (12 + rowOffset * ROW_SEMITONES)) % 12])
+    : SCALE.map((x, i) => SCALE[(i + (144 + rowOffset * ROW_SEMITONES)) % 12])
 
   let note = intervalOffset > -1
     ? scale[(intervalOffset * INTERVAL_SEMITONES) % 12]
-    : scale[12 + ((intervalOffset * INTERVAL_SEMITONES) % 12)]
+    : scale[((144 + (intervalOffset * INTERVAL_SEMITONES)) % 12)]
 
   let scaleOffset = BASE_SCALE_OFFSET + Math.floor((rowOffset * ROW_SEMITONES) / 12)
   // NOTE: This is a hack and should be resolved with math
@@ -41,9 +41,17 @@ const getTone = ({ rowOffset, intervalOffset }: { rowOffset: number, intervalOff
 }
 
 const playTone = (tone: string) => {
+  console.log("PLAYING:", tone)
   const synth = new Tone.Synth().toDestination();
   synth.triggerAttackRelease(tone, '8n')
-  console.log("PLAYING:", tone)
 }
 
-export { getTone, playTone, SCALE, BASE_SCALE_OFFSET }
+const synth = new Tone.PolySynth().toDestination();
+const playPolyTones = (tones: string[]) => {
+  synth.triggerAttack(tones)
+}
+const stopPolyTones = (tones: string[]) => {
+  synth.triggerRelease(tones)
+}
+
+export { getTone, playTone, playPolyTones, stopPolyTones, SCALE, BASE_SCALE_OFFSET }

@@ -72,7 +72,7 @@ const setLuminance = (hexcode: string, luminance: number): string => {
   return hslString;
 };
 
-const getColorForTone = (tone: string): string => {
+const getColorForTone = (tone = ''): string => {
   const note = tone.replace(/[0-9]+/g,'')
   const offset = Number(tone.replace(/[^0-9]+/g, ''))
 
