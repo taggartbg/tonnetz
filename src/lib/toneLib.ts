@@ -1,9 +1,6 @@
 
 import * as Tone from 'tone';
 
-const INTERVAL_SEMITONES = 7 // perfect 5th
-const ROW_SEMITONES = 4 // major 3rd
-
 // This Scale + Scale Offset puts the 0,0,0 hex at C4
 const SCALE = [
   'C',
@@ -38,7 +35,7 @@ const getTone = ({ rowOffset, rowSemitones, intervalOffset, intervalSemitones }:
     scaleOffset++;
   }
 
-  return `${note}${scaleOffset + Math.floor((intervalOffset * INTERVAL_SEMITONES) / 12)}`
+  return `${note}${scaleOffset + Math.floor((intervalOffset * intervalOffset) / 12)}`
 }
 
 const playTone = (tone: string) => {
@@ -55,4 +52,48 @@ const stopPolyTones = (tones: string[]) => {
   synth.triggerRelease(tones)
 }
 
-export { getTone, playTone, playPolyTones, stopPolyTones, SCALE, BASE_SCALE_OFFSET }
+
+const arpPatterns = [
+  "",
+  "up",
+  "down",
+  "upDown",
+  "downUp",
+  "random"
+]
+
+const playArp = (tones: string[], arpPattern: number) => {
+  const arp = new Tone.Pattern(function(time, note){
+    synth.triggerAttackRelease(note, 0.25)
+  }, tones, "upDown")
+  console.log('usash')
+  arp.start(0)
+  Tone.Transport.bpm.value = 150
+  Tone.Transport.start()
+
+  return arp
+}
+
+const changePattern = (arp: any, arpPattern: number) => {
+  if (arpPattern === 0) {
+    stopArp(arp)
+  }
+  arp.pattern = arpPatterns[arpPattern]
+}
+
+const stopArp = (arp: any) => {
+  if (arp && typeof arp?.cancel === 'function' && typeof arp?.dispose === 'function') {
+    arp.cancel()
+    arp.dispose()
+  }
+}
+
+const play = (tones: string[], arpPattern?: number) => {
+  if (!Number.isInteger(arpPattern)) { return } // TODO: play mono
+
+  if (arpPattern === 0) { return playPolyTones(tones) }
+
+  return playArp(tones, arpPattern || 0)
+}
+
+export { getTone, playTone, playPolyTones, stopPolyTones, SCALE, BASE_SCALE_OFFSET, playArp, stopArp, play, changePattern }

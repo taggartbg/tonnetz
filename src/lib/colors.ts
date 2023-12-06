@@ -64,7 +64,7 @@ const setLuminance = (hexcode: string, luminance: number): string => {
   const saturation = delta === 0 ? 0 : delta / (1 - Math.abs(2 * lightness - 1));
 
   // Adjust lightness based on the luminance parameter
-  const adjustedLightness = Math.max(0, Math.min(1, lightness + luminance));
+  const adjustedLightness = Math.max(0, Math.min(.9, lightness + luminance));
 
   // Round adjusted HSL values and return the result as a CSS-ready string
   const hslString = `hsl(${Math.round(hue)}, ${Math.round(saturation * 100)}%, ${Math.round(adjustedLightness * 100) || 10}%)`;

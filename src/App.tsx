@@ -2,40 +2,45 @@ import React, { Component } from 'react';
 import { HexGrid, Layout, GridGenerator } from 'react-hexgrid';
 import HexPad from './components/HexPad';
 import './App.css';
-import { playPolyTones, playTone, stopPolyTones, SCALE } from './lib/toneLib';
+import { changePattern, play, playTone, stopPolyTones, SCALE, playArp, stopArp, playPolyTones } from './lib/toneLib';
 import { styled } from 'styled-components'
 
 interface ComponentState {
   tones: string[],
   revealedTones: string[],
-  mode: 'explore'|'reveal'|'express'
+  mode: 'explore'|'reveal'
   spread: number,
   climb: number
   voice: 'mono'|'poly'
+  arp: any
+  arpPattern: number
 }
 
 class App extends Component<{}, ComponentState> {
   constructor(props: Record<any, any>) {
     super(props);
-    this.state = {tones: [], revealedTones: [], mode: 'explore', spread: 7, climb: 4, voice: 'poly'};
+    this.state = {
+      tones: [],
+      revealedTones: [],
+      mode: 'explore',
+      spread: 7,
+      climb: 4,
+      voice: 'poly',
+      arp: null,
+      arpPattern: 0
+    };
   }
 
   toggleTone(tone: string) {
-    stopPolyTones(this.state && this.state.tones || []);
+    stopPolyTones(this.state && this.state.tones || [])
+    stopArp(this.state.arp)
 
     // this is gross
     const toneIdx = this.state.tones.indexOf(tone)
     if (toneIdx > -1) {
-      if (this.state.mode === 'explore') {
-        this.setState({
-          tones: this.state.tones.filter((x, i) => i !== toneIdx),
-          revealedTones: this.state.tones.filter((x, i) => i !== toneIdx)
-        }, () => playPolyTones(this.state.tones))
-      } else if (this.state.mode === 'express' || this.state.mode === 'reveal') {
         this.setState({
           tones: []
         })
-      }
     } else {
       if (this.state.voice === 'mono') {
         this.setState({
@@ -45,12 +50,17 @@ class App extends Component<{}, ComponentState> {
         this.setState({
           tones: [...this.state.tones, tone],
           revealedTones: [...this.state.revealedTones, tone]
-        }, () => playPolyTones(this.state.tones))
+        }, () => {
+          // setState Callback
+          // playPolyTones(this.state.tones)
+          const arp = play(this.state.tones, this.state.arpPattern)
+          this.setState({ arp })
+        })
       }
     }
   }
 
-  toggleMode(mode:'explore'|'reveal'|'express') {
+  toggleMode(mode:'explore'|'reveal') {
     stopPolyTones(this.state && this.state.tones || []);
     this.setState({ mode, tones: [], revealedTones: mode === 'reveal' ? SCALE : [] })
   }
@@ -79,34 +89,59 @@ class App extends Component<{}, ComponentState> {
     this.setState({ voice })
   }
 
+  changeArpPattern(arpPattern: number) {
+    this.setState({ arpPattern }, () => {
+      if (this.state.arp) {
+        changePattern(this.state.arp, this.state.arpPattern)
+      }
+      if (this.state.arpPattern === 0) {
+        stopArp(this.state.arp)
+        this.setState({ arp: null })
+        playPolyTones(this.state.tones)
+      } else {
+        stopPolyTones(this.state.tones)
+      }
+      if (this.state.arpPattern !== 0 && !this.state.arp) {
+        stopPolyTones(this.state.tones)
+        const arp = play(this.state.tones, this.state.arpPattern)
+        this.setState({ arp })
+      }
+    })
+  }
+
   render() {
     const hexagons = GridGenerator.hexagon(4);
 
     return (
       <div className="App">
         <Config>
-          <div>
-            <span>Spread &#8703; <b>{this.state.spread}</b></span>
-            <ConfigControl onClick={() => this.changeSpread(-1)}>-</ConfigControl>
-            <ConfigControl onClick={() => this.changeSpread(1)}>+</ConfigControl>
-          </div>
-          <div>
-            <span>Climb &#8691; <b>{this.state.climb}</b></span>
-            <ConfigControl onClick={() => this.changeClimb(-1)}>-</ConfigControl>
-            <ConfigControl onClick={() => this.changeClimb(1)}>+</ConfigControl>
-          </div>
-          <div>
+          <div style={{userSelect: 'none'}}>
             <span>
-              Voice
+              <span style={{width: 105, display: 'inline-block'}}>Voice</span>
               <ConfigControl onClick={() => this.changeVoice('mono')}>{this.state.voice === 'mono' ? 'MONO' : 'mono'}</ConfigControl>
               <ConfigControl onClick={() => this.changeVoice('poly')}>{this.state.voice === 'poly' ? 'POLY' : 'poly'}</ConfigControl>
             </span>
+          </div>
+          <div style={{userSelect: 'none'}}>
+            <span>
+              <span style={{width: 105, display: 'inline-block'}}>Arp</span>
+              <ConfigControl onClick={() => this.changeArpPattern((this.state.arpPattern + 1) % 6)}>{this.state.arpPattern}</ConfigControl>
+            </span>
+          </div>
+          <div style={{userSelect: 'none'}}>
+            <span style={{width: 195, display: 'inline-block'}}>Spread &#8703; <b>{this.state.spread}</b></span>
+            <ConfigControl onClick={() => this.changeSpread(-1)}>-</ConfigControl>
+            <ConfigControl onClick={() => this.changeSpread(1)}>+</ConfigControl>
+          </div>
+          <div style={{userSelect: 'none'}}>
+            <span style={{width: 195, display: 'inline-block'}}>Climb &#8691; <b>{this.state.climb}</b></span>
+            <ConfigControl onClick={() => this.changeClimb(-1)}>-</ConfigControl>
+            <ConfigControl onClick={() => this.changeClimb(1)}>+</ConfigControl>
           </div>
         </Config>
         <Modes>
           <div onClick={() => this.toggleMode('explore')} style={this.state.mode === 'explore' ? {color: 'yellow'} : undefined}>explore</div>
           <div onClick={() => this.toggleMode('reveal')} style={this.state.mode === 'reveal' ? {color: 'yellow'} : undefined}>reveal</div>
-          <div onClick={() => this.toggleMode('express')} style={this.state.mode === 'express' ? {color: 'yellow'} : undefined}>express</div>
         </Modes>
         <HexGrid width={1200} height={800}>
           <Layout size={{ x: 7, y: 7 }}>
