@@ -11,12 +11,13 @@ interface ComponentState {
   mode: 'explore'|'reveal'|'express'
   spread: number,
   climb: number
+  voice: 'mono'|'poly'
 }
 
 class App extends Component<{}, ComponentState> {
   constructor(props: Record<any, any>) {
     super(props);
-    this.state = {tones: [], revealedTones: [], mode: 'explore', spread: 7, climb: 4};
+    this.state = {tones: [], revealedTones: [], mode: 'explore', spread: 7, climb: 4, voice: 'poly'};
   }
 
   toggleTone(tone: string) {
@@ -30,13 +31,13 @@ class App extends Component<{}, ComponentState> {
           tones: this.state.tones.filter((x, i) => i !== toneIdx),
           revealedTones: this.state.tones.filter((x, i) => i !== toneIdx)
         }, () => playPolyTones(this.state.tones))
-      } else if (this.state.mode === 'express') {
+      } else if (this.state.mode === 'express' || this.state.mode === 'reveal') {
         this.setState({
           tones: []
         })
       }
     } else {
-      if (this.state.mode === 'reveal') {
+      if (this.state.voice === 'mono') {
         this.setState({
           revealedTones: [...this.state.revealedTones, tone]
         }, () => playTone(tone))
@@ -51,7 +52,7 @@ class App extends Component<{}, ComponentState> {
 
   toggleMode(mode:'explore'|'reveal'|'express') {
     stopPolyTones(this.state && this.state.tones || []);
-    this.setState({ mode, tones: [], revealedTones: [] })
+    this.setState({ mode, tones: [], revealedTones: mode === 'reveal' ? SCALE : [] })
   }
 
   changeSpread(delta: number) {
@@ -74,6 +75,10 @@ class App extends Component<{}, ComponentState> {
     }
   }
 
+  changeVoice(voice: 'mono'|'poly') {
+    this.setState({ voice })
+  }
+
   render() {
     const hexagons = GridGenerator.hexagon(4);
 
@@ -89,6 +94,13 @@ class App extends Component<{}, ComponentState> {
             <span>Climb &#8691; <b>{this.state.climb}</b></span>
             <ConfigControl onClick={() => this.changeClimb(-1)}>-</ConfigControl>
             <ConfigControl onClick={() => this.changeClimb(1)}>+</ConfigControl>
+          </div>
+          <div>
+            <span>
+              Voice
+              <ConfigControl onClick={() => this.changeVoice('mono')}>{this.state.voice === 'mono' ? 'MONO' : 'mono'}</ConfigControl>
+              <ConfigControl onClick={() => this.changeVoice('poly')}>{this.state.voice === 'poly' ? 'POLY' : 'poly'}</ConfigControl>
+            </span>
           </div>
         </Config>
         <Modes>
@@ -144,7 +156,7 @@ const Config = styled.label`
   left: 15px;
   width: 300px;
   text-align: left;
-  font-size: 2em;
+  font-size: 2.25em;
   font-style: italic;
   line-height: 1.5em;
   color: #aaa;
@@ -156,6 +168,11 @@ const Config = styled.label`
 `
 
 const ConfigControl = styled.span`
-  cursor: pointer;
   color: #fff;
+  margin: 0 4px;
+
+  &:hover {
+    cursor: pointer;
+    color: yellow;
+  }
 `
