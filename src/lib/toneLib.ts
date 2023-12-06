@@ -21,16 +21,17 @@ const SCALE = [
 ]
 const BASE_SCALE_OFFSET = 4
 
-const getTone = ({ rowOffset, intervalOffset }: { rowOffset: number, intervalOffset: number}) => {
+const getTone = ({ rowOffset, rowSemitones, intervalOffset, intervalSemitones }:
+  { rowOffset: number, rowSemitones: number, intervalOffset: number, intervalSemitones: number}) => {
  const scale = rowOffset > -1
-    ? SCALE.map((x, i) => SCALE[(i + rowOffset * ROW_SEMITONES) % 12])
-    : SCALE.map((x, i) => SCALE[(i + (144 + rowOffset * ROW_SEMITONES)) % 12])
+    ? SCALE.map((x, i) => SCALE[(i + rowOffset * rowSemitones) % 12])
+    : SCALE.map((x, i) => SCALE[(i + (144 + rowOffset * rowSemitones)) % 12])
 
   let note = intervalOffset > -1
-    ? scale[(intervalOffset * INTERVAL_SEMITONES) % 12]
-    : scale[((144 + (intervalOffset * INTERVAL_SEMITONES)) % 12)]
+    ? scale[(intervalOffset * intervalSemitones) % 12]
+    : scale[((144 + (intervalOffset * intervalSemitones)) % 12)]
 
-  let scaleOffset = BASE_SCALE_OFFSET + Math.floor((rowOffset * ROW_SEMITONES) / 12)
+  let scaleOffset = BASE_SCALE_OFFSET + Math.floor((rowOffset * rowSemitones) / 12)
   // NOTE: This is a hack and should be resolved with math
   const cPos = scale.findIndex(x => x === 'C')
   if (cPos >= BASE_SCALE_OFFSET && scale.findIndex(x => x === note) > cPos) {

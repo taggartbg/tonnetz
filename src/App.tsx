@@ -2,13 +2,21 @@ import React, { Component } from 'react';
 import { HexGrid, Layout, GridGenerator } from 'react-hexgrid';
 import HexPad from './components/HexPad';
 import './App.css';
-import { playPolyTones, playTone, stopPolyTones } from './lib/toneLib';
+import { playPolyTones, playTone, stopPolyTones, SCALE } from './lib/toneLib';
 import { styled } from 'styled-components'
 
-class App extends Component<{}, { tones: string[], revealedTones: string[], mode: 'explore'|'reveal'|'express' }> {
+interface ComponentState {
+  tones: string[],
+  revealedTones: string[],
+  mode: 'explore'|'reveal'|'express'
+  spread: number,
+  climb: number
+}
+
+class App extends Component<{}, ComponentState> {
   constructor(props: Record<any, any>) {
     super(props);
-    this.state = {tones: [], revealedTones: [], mode: 'explore'};
+    this.state = {tones: [], revealedTones: [], mode: 'explore', spread: 7, climb: 4};
   }
 
   toggleTone(tone: string) {
@@ -46,11 +54,43 @@ class App extends Component<{}, { tones: string[], revealedTones: string[], mode
     this.setState({ mode, tones: [], revealedTones: [] })
   }
 
+  changeSpread(delta: number) {
+    const newSpread = this.state.spread + delta
+
+    if (newSpread > 0 && newSpread < 12) {
+      this.setState({
+        spread: newSpread
+      })
+    }
+  }
+
+  changeClimb(delta: number) {
+    const newClimb = this.state.climb + delta
+
+    if (newClimb > 0 && newClimb < 12) {
+      this.setState({
+        climb: newClimb
+      })
+    }
+  }
+
   render() {
     const hexagons = GridGenerator.hexagon(4);
 
     return (
       <div className="App">
+        <Config>
+          <div>
+            <span>Spread &#8703; <b>{this.state.spread}</b></span>
+            <ConfigControl onClick={() => this.changeSpread(-1)}>-</ConfigControl>
+            <ConfigControl onClick={() => this.changeSpread(1)}>+</ConfigControl>
+          </div>
+          <div>
+            <span>Climb &#8691; <b>{this.state.climb}</b></span>
+            <ConfigControl onClick={() => this.changeClimb(-1)}>-</ConfigControl>
+            <ConfigControl onClick={() => this.changeClimb(1)}>+</ConfigControl>
+          </div>
+        </Config>
         <Modes>
           <div onClick={() => this.toggleMode('explore')} style={this.state.mode === 'explore' ? {color: 'yellow'} : undefined}>explore</div>
           <div onClick={() => this.toggleMode('reveal')} style={this.state.mode === 'reveal' ? {color: 'yellow'} : undefined}>reveal</div>
@@ -68,6 +108,8 @@ class App extends Component<{}, { tones: string[], revealedTones: string[], mode
                 toggleTone={(tone) => this.toggleTone(tone)}
                 revealedTones={this.state.revealedTones}
                 playingTones={this.state.tones}
+                spread={this.state.spread}
+                climb={this.state.climb}
               />
             )) }
             </g>
@@ -95,4 +137,25 @@ const Modes = styled.div`
     color: #fff;
     cursor: pointer;
   }
+`
+const Config = styled.label`
+  position: absolute;
+  top: 0;
+  left: 15px;
+  width: 300px;
+  text-align: left;
+  font-size: 2em;
+  font-style: italic;
+  line-height: 1.5em;
+  color: #aaa;
+
+  &:focus {
+    color: #fff;
+    cursor: pointer;
+  }
+`
+
+const ConfigControl = styled.span`
+  cursor: pointer;
+  color: #fff;
 `
