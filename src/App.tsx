@@ -139,6 +139,9 @@ class App extends Component<{}, ComponentState> {
             <ConfigControl onClick={() => this.changeClimb(1)}>+</ConfigControl>
           </div>
         </Config>
+        <FullScreen onClick={() => document.documentElement.requestFullscreen()}>
+          &#10021;
+        </FullScreen>
         <Modes>
           <div onClick={() => this.toggleMode('explore')} style={this.state.mode === 'explore' ? {color: 'yellow'} : undefined}>explore</div>
           <div onClick={() => this.toggleMode('reveal')} style={this.state.mode === 'reveal' ? {color: 'yellow'} : undefined}>reveal</div>
@@ -209,5 +212,20 @@ const ConfigControl = styled.span`
   &:hover {
     cursor: pointer;
     color: yellow;
+  }
+`
+
+const FullScreen = styled.div`
+  position: absolute;
+  bottom: 5px;
+  right: 15px;
+  text-align: left;
+  font-size: 2.25em;
+  line-height: 1.5em;
+  color: #aaa;
+
+  &:hover {
+    cursor: pointer;
+    color: #ff0
   }
 `
