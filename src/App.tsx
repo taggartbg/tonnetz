@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { HexGrid, Layout, GridGenerator } from 'react-hexgrid';
 import HexPad from './components/HexPad';
 import './App.css';
-import { changePattern, play, playTone, stopPolyTones, SCALE, playArp, stopArp, playPolyTones } from './lib/toneLib';
+import { changePattern, play, playTone, stopPolyTones, SCALE, stopArp, playPolyTones } from './lib/toneLib';
 import { styled } from 'styled-components'
 
 interface ComponentState {

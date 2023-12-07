@@ -82,6 +82,7 @@ const getColorForTone = (tone = ''): string => {
 
   const luminance = lumScale(offset)
   return setLuminance(SCALE_COLORS[note], luminance)
+  // return SCALE_COLORS[note]
 }
 
 export { getColorForTone }

@@ -21,8 +21,8 @@ const BASE_SCALE_OFFSET = 4
 const getTone = ({ rowOffset, rowSemitones, intervalOffset, intervalSemitones }:
   { rowOffset: number, rowSemitones: number, intervalOffset: number, intervalSemitones: number}) => {
  const scale = rowOffset > -1
-    ? SCALE.map((x, i) => SCALE[(i + rowOffset * rowSemitones) % 12])
-    : SCALE.map((x, i) => SCALE[(i + (144 + rowOffset * rowSemitones)) % 12])
+    ? SCALE.map((_x, i) => SCALE[(i + rowOffset * rowSemitones) % 12])
+    : SCALE.map((_x, i) => SCALE[(i + (144 + rowOffset * rowSemitones)) % 12])
 
   let note = intervalOffset > -1
     ? scale[(intervalOffset * intervalSemitones) % 12]
@@ -45,6 +45,7 @@ const playTone = (tone: string) => {
 }
 
 const synth = new Tone.PolySynth().toDestination();
+synth.volume.value = -12
 const playPolyTones = (tones: string[]) => {
   synth.triggerAttack(tones)
 }
@@ -62,8 +63,8 @@ const arpPatterns = [
   "random"
 ]
 
-const playArp = (tones: string[], arpPattern: number) => {
-  const arp = new Tone.Pattern(function(time, note){
+const playArp = (tones: string[], _arpPattern: number) => {
+  const arp = new Tone.Pattern(function(_time, note){
     synth.triggerAttackRelease(note, 0.25)
   }, tones, "upDown")
   console.log('usash')
